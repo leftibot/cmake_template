@@ -34,6 +34,15 @@ add_test(
   COMMAND ${CMAKE_COMMAND} -P
           ${CMAKE_CURRENT_SOURCE_DIR}/cmake/test_sanitizers_non_apple_includes_leak.cmake)
 
+# CMake-script regression test for cmake/Emscripten.cmake (issue #155):
+# the legacy `-sASYNCIFY=1` flag is incompatible with `-fwasm-exceptions`
+# under modern emsdk; the WASM target must use the JSPI replacement.
+add_test(
+  NAME cmake.emscripten.modern_async
+  COMMAND ${CMAKE_COMMAND}
+          -DTEST_TMP_DIR=${CMAKE_CURRENT_BINARY_DIR}/test_emscripten_modern_async
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/test_emscripten_modern_async.cmake)
+
 # Provide a test to verify that the version being reported from the application
 # matches the version given to CMake. This will be important once you package
 # your program. Real world shows that this is the kind of simple mistake that is easy

@@ -42,8 +42,6 @@ if(EMSCRIPTEN)
       "Initial WASM memory in bytes (default: 32MB)")
   set(myproject_WASM_PTHREAD_POOL_SIZE "4" CACHE STRING
       "Pthread pool size for WASM builds (default: 4)")
-  set(myproject_WASM_ASYNCIFY_STACK_SIZE "65536" CACHE STRING
-      "Asyncify stack size in bytes (default: 64KB)")
 
   # For Emscripten WASM builds, FTXUI requires pthreads and native exception handling
   # Set these flags early so they propagate to all dependencies
@@ -89,9 +87,11 @@ function(myproject_configure_wasm_target target)
       "-sUSE_PTHREADS=1"
       "-sPROXY_TO_PTHREAD=1"
       "-sPTHREAD_POOL_SIZE=${myproject_WASM_PTHREAD_POOL_SIZE}"
-      # Enable asyncify for emscripten_sleep and async operations
-      "-sASYNCIFY=1"
-      "-sASYNCIFY_STACK_SIZE=${myproject_WASM_ASYNCIFY_STACK_SIZE}"
+      # Enable JSPI (JavaScript Promise Integration) for emscripten_sleep
+      # and other async operations. JSPI is the modern replacement for
+      # legacy Asyncify (-sASYNCIFY=1) and, unlike Asyncify, is compatible
+      # with native WebAssembly exception handling (-fwasm-exceptions).
+      "-sJSPI=1"
       # Memory configuration
       "-sALLOW_MEMORY_GROWTH=1"
       "-sINITIAL_MEMORY=${myproject_WASM_INITIAL_MEMORY}"
