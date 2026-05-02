@@ -24,6 +24,16 @@ include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
 # Provide a simple smoke test to make sure that the CLI works and can display a --help message
 add_test(NAME cli.has_help COMMAND intro --help)
 
+# CMake-script regression tests for cmake/Sanitizers.cmake (issue #141).
+add_test(
+  NAME cmake.sanitizers.apple_excludes_leak
+  COMMAND ${CMAKE_COMMAND} -P
+          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/test_sanitizers_apple_excludes_leak.cmake)
+add_test(
+  NAME cmake.sanitizers.non_apple_includes_leak
+  COMMAND ${CMAKE_COMMAND} -P
+          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/test_sanitizers_non_apple_includes_leak.cmake)
+
 # Provide a test to verify that the version being reported from the application
 # matches the version given to CMake. This will be important once you package
 # your program. Real world shows that this is the kind of simple mistake that is easy

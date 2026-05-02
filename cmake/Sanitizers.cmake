@@ -15,7 +15,14 @@ function(
     endif()
 
     if(${ENABLE_SANITIZER_LEAK})
-      list(APPEND SANITIZERS "leak")
+      # LeakSanitizer is unsupported on Apple platforms (the linker rejects
+      # -fsanitize=leak on macOS, including arm64). On Apple, leak detection
+      # is provided by AddressSanitizer with ASAN_OPTIONS=detect_leaks=1.
+      if(APPLE)
+        message(WARNING "Leak sanitizer is not supported on Apple platforms; ignoring myproject_ENABLE_SANITIZER_LEAK")
+      else()
+        list(APPEND SANITIZERS "leak")
+      endif()
     endif()
 
     if(${ENABLE_SANITIZER_UNDEFINED_BEHAVIOR})
