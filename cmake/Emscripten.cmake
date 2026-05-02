@@ -42,11 +42,16 @@ if(EMSCRIPTEN)
       "Initial WASM memory in bytes (default: 32MB)")
   set(myproject_WASM_PTHREAD_POOL_SIZE "4" CACHE STRING
       "Pthread pool size for WASM builds (default: 4)")
+  set(myproject_WASM_ASYNCIFY_STACK_SIZE "65536" CACHE STRING
+      "Asyncify stack size in bytes (default: 64KB)")
 
-  # For Emscripten WASM builds, FTXUI requires pthreads and native exception handling
-  # Set these flags early so they propagate to all dependencies
-  add_compile_options(-pthread -fwasm-exceptions)
-  add_link_options(-pthread -fwasm-exceptions)
+  # For Emscripten WASM builds, FTXUI requires pthreads and exception handling.
+  # We use -fexceptions (JS-based exceptions) rather than -fwasm-exceptions
+  # because native wasm exceptions are incompatible with legacy Asyncify, and
+  # JSPI (the modern Asyncify replacement) is not yet shipping in all browsers.
+  # Set these flags early so they propagate to all dependencies.
+  add_compile_options(-pthread -fexceptions)
+  add_link_options(-pthread -fexceptions)
 endif()
 
 # Function to apply WASM settings to a target
@@ -87,11 +92,11 @@ function(myproject_configure_wasm_target target)
       "-sUSE_PTHREADS=1"
       "-sPROXY_TO_PTHREAD=1"
       "-sPTHREAD_POOL_SIZE=${myproject_WASM_PTHREAD_POOL_SIZE}"
-      # Enable JSPI (JavaScript Promise Integration) for emscripten_sleep
-      # and other async operations. JSPI is the modern replacement for
-      # legacy Asyncify (-sASYNCIFY=1) and, unlike Asyncify, is compatible
-      # with native WebAssembly exception handling (-fwasm-exceptions).
-      "-sJSPI=1"
+      # Enable Asyncify for emscripten_sleep and other async operations.
+      # Paired with -fexceptions (JS-based exception handling) above, since
+      # Asyncify is not compatible with native wasm exceptions.
+      "-sASYNCIFY=1"
+      "-sASYNCIFY_STACK_SIZE=${myproject_WASM_ASYNCIFY_STACK_SIZE}"
       # Memory configuration
       "-sALLOW_MEMORY_GROWTH=1"
       "-sINITIAL_MEMORY=${myproject_WASM_INITIAL_MEMORY}"
