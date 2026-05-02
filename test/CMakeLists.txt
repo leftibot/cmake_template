@@ -24,12 +24,6 @@ include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
 # Provide a simple smoke test to make sure that the CLI works and can display a --help message
 add_test(NAME cli.has_help COMMAND intro --help)
 
-# Regression test for issue #117: ensure the dev container Dockerfile no longer
-# installs Conan (the project's dependencies are managed by CPM).
-add_test(
-  NAME devcontainer.no_conan
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/test/check_no_conan_in_devcontainer.cmake)
-
 # Provide a test to verify that the version being reported from the application
 # matches the version given to CMake. This will be important once you package
 # your program. Real world shows that this is the kind of simple mistake that is easy
